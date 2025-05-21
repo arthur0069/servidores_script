@@ -1,0 +1,25 @@
+(configurar e instalar samba)
+
+sudo apt update
+sudo apt install -y samba
+
+sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bak
+
+echo '
+[publico]
+   path = /home/iftm/samba
+   browseable = yes
+   writable = yes
+   guest ok = yes
+   create mask = 0777
+   directory mask = 0777
+' | sudo tee -a /etc/samba/smb.conf
+
+mkdir -p /home/iftm/samba
+chmod 777 /home/iftm/samba
+
+sudo systemctl restart smbd
+
+sudo smbpasswd -a iftm
+sudo systemctl enable smbd
+sudo systemctl start smbd
