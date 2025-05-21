@@ -1,0 +1,47 @@
+
+
+
+echo "configurador de rede"
+echo "escolha o tipo de configuracao de rede"
+echo "1- automática (dhcp)"
+echo "2- estatica"
+read -p "digite 1 ou 2" escolha
+
+if [ "$escolha" -eq 1 ]; then
+    echo "configuracao automatica selecionada."
+    echo "digite o nome da interface de rede"
+    read interface_nome
+
+ 
+    echo "solicitando IP via DHCP para $interface_nome..."
+    sudo dhclient $interface_nome
+
+    echo "configuracao de rede para dhcp"
+    echo "execute 'ip a' para verificar o IP configurado."
+
+elif [ "$escolha" -eq 2 ]; then
+    echo "configuracao manual selecionada."
+    echo "digite o nome da interface de rede"
+    read interface_nome
+    echo "digite o endereço IP com mascara de rede"
+    read ip_mascara
+    echo "digite o gateway padrao"
+    read gateway
+    echo "digite o endereco do servidor DNS "
+    read dns
+
+    echo "aplicando configuraçoes para $interface_nome..."
+    sudo ip link set $interface_nome up
+    sudo ip addr add $ip_mascara dev $interface_nome
+    sudo ip route add default via $gateway
+
+
+    echo "configurando servidor dns"
+    echo "nameserver $dns" | sudo tee /etc/resolv.conf > /dev/null
+
+    echo "configuracao de rede para IP estatico aplicada"
+    echo "execute 'ip a' para verificar o IP configurado."
+
+else
+    echo "tente novamente"
+fi
