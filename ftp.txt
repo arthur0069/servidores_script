@@ -1,0 +1,19 @@
+HOST=ip do server
+USER=arthur
+PASS=iftm
+
+(enviar)
+
+ftp -inv $HOST <<EOF
+user $USER $PASS
+put /home/iftm/arquivo_para_enviar.txt
+bye
+EOF
+
+(baixar)
+
+ftp -inv $HOST <<EOF
+user $USER $PASS
+get arquivo_no_servidor.txt /home/iftm/arquivo_baixado.txt
+bye
+EOF

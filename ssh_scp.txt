@@ -1,0 +1,27 @@
+
+sudo apt install -y openssh-server
+sudo systemctl enable ssh
+sudo systemctl start ssh
+
+
+ip a
+
+ssh usuario@ip da maquina
+
+ssh iftm@ip da maquina
+
+( exemplo de ip) 
+
+scp /home/iftm/arquivo.txt iftm@192.168.0.10:/home/iftm/
+
+
+scp -r /home/iftm/pasta iftm@192.168.0.10:/home/iftm/
+
+
+scp iftm@192.168.0.10:/home/iftm/arquivo.txt /home/iftm/
+
+
+scp -r iftm@192.168.0.10:/home/iftm/pasta /home/iftm/
+
+
+SCRIPT TUTORIAL SSH E SCP

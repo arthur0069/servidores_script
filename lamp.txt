@@ -1,0 +1,24 @@
+sudo apt update
+sudo apt install -y apache2 mariadb-server php php-mysql libapache2-mod-php
+sudo systemctl enable apache2
+sudo systemctl start apache2
+sudo systemctl enable mariadb
+sudo systemctl start mariadb
+sudo mysql_secure_installation
+sudo systemctl restart apache2
+echo '<?php phpinfo(); ?>' | sudo tee /var/www/html/info.php
+
+
+
+(abrir no navegador)
+
+http://localhost/info.php
+
+
+
+
+
+
+(mexer no maria db)
+
+sudo mysql -u root -p

@@ -1,0 +1,7 @@
+echo 'DATA=$(date +%Y-%m-%d)
+cp -r /home/iftm /home/iftm-backup-$DATA' > /home/iftm/backup.sh
+
+chmod +x /home/iftm/backup.sh
+
+
+SCRIPT DE BACKUP
