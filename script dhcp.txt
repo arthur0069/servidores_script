@@ -1,0 +1,53 @@
+#!/bin/bash
+
+echo "digite uma opcao: start, stop, restart, install, remover, configurar"
+read opcao
+
+if [ "$opcao" = "start" ]; then
+  systemctl start isc-dhcp-server
+
+elif [ "$opcao" = "stop" ]; then
+  systemctl stop isc-dhcp-server
+
+elif [ "$opcao" = "restart" ]; then
+  systemctl restart isc-dhcp-server
+
+elif [ "$opcao" = "install" ]; then
+  apt update
+  apt install isc-dhcp-server -y
+
+elif [ "$opcao" = "remover" ]; then
+  apt remove isc-dhcp-server -y
+  rm -f /etc/dhcp/dhcpd.conf
+  rm -f /etc/default/isc-dhcp-server
+
+elif [ "$opcao" = "configurar" ]; then
+  read -p "digite a interface de rede: " interface
+  read -p "digite o ip do servidor: " ip_servidor
+  read -p "digite a mascara: " mascara
+  read -p "digite o inicio da faixa de ip: " ip_inicio
+  read -p "digite o fim da faixa de ip: " ip_fim
+  read -p "digite o gateway: " gateway
+  read -p "digite o dns: " dns
+  read -p "digite o nome do dominio: " dominio
+
+  ifconfig $interface $ip_servidor netmask $mascara up
+  route add default gw $gateway $interface
+
+  cat > /etc/dhcp/dhcpd.conf << fim
+subnet ${ip_servidor%.*}.0 netmask $mascara {
+  range $ip_inicio $ip_fim;
+  option subnet-mask $mascara;
+  option routers $gateway;
+  option domain-name-servers $dns;
+  option domain-name "$dominio";
+}
+fim
+
+  echo "interfacesv4=\"$interface\"" > /etc/default/isc-dhcp-server
+  systemctl restart isc-dhcp-server
+  systemctl enable isc-dhcp-server
+
+else
+  echo "opcao invalida"
+fi
