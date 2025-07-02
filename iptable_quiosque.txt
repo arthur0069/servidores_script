@@ -1,0 +1,69 @@
+#!/bin/bash
+
+read -p "comando: " comando
+
+case "$comando" in
+  start)
+    echo "Criando conjunto IPSET e bloqueando tudo, exceto iftm.edu.br"
+
+    ipset destroy iftmlist 2>/dev/null
+    ipset create iftmlist hash:ip
+
+    for ip in $(dig +short iftm.edu.br); do
+      ipset add iftmlist $ip
+    done
+
+    iptables -F
+    iptables -X
+
+    iptables -P OUTPUT DROP
+    iptables -P INPUT DROP
+
+    iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
+    iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT
+
+    iptables -A OUTPUT -o lo -j ACCEPT
+    iptables -A INPUT -i lo -j ACCEPT
+
+    iptables -A OUTPUT -m set --match-set iftmlist dst -p tcp --dport 80 -j ACCEPT
+    iptables -A OUTPUT -m set --match-set iftmlist dst -p tcp --dport 443 -j ACCEPT
+
+    iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+    echo "apnas iftm.edu.br liberado"
+    ;;
+  stop)
+    echo "limpando regras e conjuntos"
+    iptables -F
+    iptables -X
+    ipset destroy iftmlist 2>/dev/null
+    iptables -P INPUT ACCEPT
+    iptables -P OUTPUT ACCEPT
+    echo "regras e IPSET limpos"
+    ;;
+  restart)
+    echo "reiniciando com bloqueio total e iftm liberado"
+    $0 stop
+    $0 start
+    ;;
+  install)
+    echo "instalando iptables e ipset"
+    apt install iptables ipset dnsutils -y
+    echo "pacotes instalados"
+    ;;
+  remove)
+    echo "removendo iptables e ipset"
+    apt remove iptables ipset dnsutils -y
+    echo "pacotes removidos"
+    ;;
+  list)
+    echo "regras do iptables:"
+    iptables -L -v -n
+    echo
+    echo "conjunto IPSET:"
+    ipset list iftmlist 2>/dev/null
+    ;;
+  *)
+    echo "cmnd n existe"
+    ;;
+esac
